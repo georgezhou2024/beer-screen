@@ -260,6 +260,10 @@ function renderForm() {
         <button class="secondary" onclick="document.querySelectorAll('#slidesHost .slide-item')[${i}].querySelector('input[type=file]').click()">📤 上传到GitHub(小文件)</button>
         <button class="secondary" onclick="const u=prompt('粘贴视频/图片链接(R2地址):');if(u){slides[${i}].src=u;slides[${i}].type='video';renderForm()}">🔗 粘贴外部链接(R2大视频)</button>
       </div>
+      <div style="margin-top:6px">
+        <button class="secondary" style="font-size:12px;padding:6px 10px" onclick="navigator.clipboard.writeText(slides[${i}].src).then(()=>showStatus('链接已复制'))">📋 复制当前链接</button>
+        <button class="secondary" style="font-size:12px;padding:6px 10px" onclick="autoTranslate(${i})">🌐 自动翻译英文→中文</button>
+      </div>
       <label>标题</label>
       <input type="text" value="${s.title||''}" onchange="slides[${i}].title=this.value">
       <label>副标题</label>
@@ -279,6 +283,30 @@ function renderForm() {
 function addSlide() {
   slides.push({ id:"slide"+Date.now(), type:"image", src:"", tag:"", title:"新素材", subtitle:"", duration:6, enabled:true });
   renderForm();
+}
+
+async function autoTranslate(i) {
+  const s = slides[i];
+  showStatus("翻译中...", "busy");
+  try {
+    if (s.tag) {
+      const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(s.tag)}`);
+      const j = await r.json();
+      s.tag = j[0].map(x=>x[0]).join('');
+    }
+    if (s.title) {
+      const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(s.title)}`);
+      const j = await r.json();
+      s.title = j[0].map(x=>x[0]).join('');
+    }
+    if (s.subtitle) {
+      const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(s.subtitle)}`);
+      const j = await r.json();
+      s.subtitle = j[0].map(x=>x[0]).join('');
+    }
+    renderForm();
+    showStatus("✅ 翻译完成，记得点保存");
+  } catch(e) { showStatus("翻译失败: " + e.message, "err"); }
 }
 function delSlide(i) { if(confirm("删除这条？")) { slides.splice(i,1); renderForm(); } }
 function moveSlide(i, d) {

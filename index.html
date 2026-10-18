@@ -94,6 +94,12 @@
 
   /* 进度条 - 已隐藏 */
   .progress { display:none; }
+  .sound-hint {
+    position:absolute; bottom:8%; right:3%; font-size:14px; color:#C48B47;
+    background:rgba(0,0,0,0.6); padding:6px 12px; border-radius:20px; z-index:16;
+    pointer-events:none; animation:fadeInOut 3s infinite;
+  }
+  @keyframes fadeInOut { 0%,100%{opacity:.7} 50%{opacity:1} }
 
   /* 安全区提示 */
   @media (max-aspect-ratio:16/9) {
@@ -171,8 +177,9 @@ function renderSlides() {
     const div = document.createElement('div');
     div.className = 'slide' + (i===0 ? ' active' : '');
     if (s.type === 'video') {
-      div.innerHTML = `<video src="${p(s.src)}" muted loop playsinline preload="auto"></video>
-        <div class="caption"><div class="tag">${s.tag||''}</div><div class="title">${s.title||''}</div><div class="subtitle">${s.subtitle||''}</div></div>`;
+      div.innerHTML = `<video src="${p(s.src)}" loop playsinline preload="auto"></video>
+        <div class="caption"><div class="tag">${s.tag||''}</div><div class="title">${s.title||''}</div><div class="subtitle">${s.subtitle||''}</div></div>
+        <div class="sound-hint" id="soundHint">🔊 点屏幕开声音</div>`;
     } else {
       div.innerHTML = `<img src="${p(s.src)}" alt="${s.title||''}">
         <div class="caption"><div class="tag">${s.tag||''}</div><div class="title">${s.title||''}</div><div class="subtitle">${s.subtitle||''}</div></div>`;
@@ -205,6 +212,7 @@ function go(i) {
   const video = el.querySelector('video');
   if (video) {
     video.currentTime = 0;
+    video.muted = true;
     video.play().catch(()=>{});
     video.onended = () => go(current + 1);
     animateProgress(15);
@@ -223,6 +231,16 @@ function animateProgress(ms) {
     p.style.width = '100%';
   });
 }
+
+// 点屏幕切换视频声音
+document.addEventListener('click', () => {
+  const v = document.querySelector('.slide.active video');
+  if (v) {
+    v.muted = !v.muted;
+    const h = document.getElementById('soundHint');
+    if (h) h.style.display = v.muted ? 'block' : 'none';
+  }
+});
 
 loadConfig();
 setInterval(loadConfig, 20000);
