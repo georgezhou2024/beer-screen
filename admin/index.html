@@ -68,10 +68,12 @@
   <div class="card">
     <div class="grid2">
       <div>
-        <label>Logo 图片地址（上传后自动填）</label>
-        <input type="text" id="logoSrc">
-        <input type="file" id="logoFile" accept="image/*" style="margin-top:6px">
-        <button class="secondary" style="margin-top:6px" onclick="uploadLogo()">上传 Logo</button>
+        <label>Logo 图片（点预览直接换）</label>
+        <input type="text" id="logoSrc" placeholder="上传后自动填">
+        <label class="dropzone" style="cursor:pointer;display:block;margin-top:6px;border:2px dashed #444;border-radius:6px;padding:10px;text-align:center;color:#888;font-size:13px;">
+          <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="uploadLogo()">
+          <span id="logoPreview">＋ 点击上传 Logo（透明PNG最佳）</span>
+        </label>
       </div>
       <div>
         <label>Logo 位置</label>
@@ -186,6 +188,12 @@ function renderForm() {
   document.getElementById("logoSrc").value = settings.logo.src || "";
   document.getElementById("logoPos").value = settings.logo.position || "top-right";
   document.getElementById("logoVis").checked = !!settings.logo.visible;
+  const lp = document.getElementById("logoPreview");
+  if (settings.logo.src) {
+    lp.innerHTML = `<img src="${p(settings.logo.src)}" style="max-height:60px;"><div style="margin-top:6px;color:#C48B47;">点击更换 Logo</div>`;
+  } else {
+    lp.innerHTML = "＋ 点击上传 Logo（透明PNG最佳）";
+  }
   document.getElementById("cornerText").value = settings.cornerText.text || "";
   document.getElementById("cornerPos").value = settings.cornerText.position || "bottom-right";
   document.getElementById("cornerVis").checked = !!settings.cornerText.visible;
@@ -209,10 +217,12 @@ function renderForm() {
         <option value="image" ${s.type==="image"?"selected":""}>图片</option>
         <option value="video" ${s.type==="video"?"selected":""}>视频(MP4)</option>
       </select>
-      <label>图片/视频地址（上传后自动填）</label>
-      <input type="text" value="${s.src||''}" onchange="slides[${i}].src=this.value">
-      <input type="file" accept="image/*,video/mp4" style="margin-top:6px" onchange="uploadFileForSlide(${i}, this)">
-      ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img class="thumb" src="${p(s.src)}">` : ""}
+      <label>图片/视频（点下面预览图直接换）</label>
+      <input type="text" value="${s.src||''}" onchange="slides[${i}].src=this.value" placeholder="assets/...">
+      <label class="dropzone" style="cursor:pointer;display:block;margin-top:8px;border:2px dashed #444;border-radius:6px;padding:14px;text-align:center;color:#888;font-size:13px;">
+        <input type="file" accept="image/*,video/mp4" style="display:none" onchange="uploadFileForSlide(${i}, this)">
+        ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img src="${p(s.src)}" style="max-width:100%;max-height:160px;border-radius:4px;display:block;margin:0 auto;"><div style="margin-top:8px;color:#C48B47;">点击这张图更换</div>` : `<div style="padding:20px 0;">＋ 点击选择图片或视频上传</div>`}
+      </label>
       <div class="grid2">
         <div><label>标签(金色小字)</label><input type="text" value="${s.tag||''}" onchange="slides[${i}].tag=this.value"></div>
         <div><label>停留秒数(图片)</label><input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value"></div>
@@ -264,6 +274,7 @@ async function uploadLogo() {
     message: "upload logo", content: b64
   });
   document.getElementById("logoSrc").value = path;
+  document.getElementById("logoPreview").innerHTML = `<img src="${p(path)}" style="max-height:60px;"><div style="margin-top:6px;color:#C48B47;">点击更换 Logo</div>`;
   showStatus("Logo 上传成功，记得点保存");
 }
 
