@@ -239,7 +239,7 @@ function renderForm() {
       <label>点预览图直接换照片/视频</label>
       <label class="dropzone">
         <input type="file" accept="image/*,video/mp4" style="display:none" data-i="${i}">
-        ${isImg ? `<img src="${p(s.src)}"><div class="hint">点击更换</div>` :
+        ${isImg ? `<img src="${p(s.src)}" style="max-width:100%;max-height:180px;border-radius:4px;display:block;margin:0;"><div class="hint" style="text-align:left;margin-top:8px;">点击更换</div>` :
           (s.type==="video" ? `<div style="padding:20px 0;">🎞 当前视频: ${s.src||''}<div class="hint">点击更换视频</div></div>` :
           `<div style="padding:20px 0;">＋ 点击选择图片上传<div class="hint">或拖入文件</div></div>`)}
       </label>
@@ -290,7 +290,12 @@ async function uploadFileForSlide(i, file) {
       content: b64encode(buf)
     });
     slides[i].src = path;
+    // 预览用 GitHub raw URL，立即可访问，不用等 Vercel 部署
+    const rawUrl = "https://raw.githubusercontent.com/" + REPO + "/main/" + path;
     renderForm();
+    // renderForm后把刚上传的图换成raw URL预览
+    const imgEl = document.querySelectorAll("#slidesHost .slide-item")[i].querySelector("img");
+    if (imgEl) imgEl.src = rawUrl;
     showStatus("✅ 上传成功！点底部「保存全部修改」生效");
   } catch(e) { showStatus("上传失败: " + e.message, "err"); }
 }
@@ -314,6 +319,8 @@ async function uploadLogo() {
     });
     settings.logo.src = path;
     renderForm();
+    const rawUrl = "https://raw.githubusercontent.com/" + REPO + "/main/" + path;
+    document.getElementById("logoPreview").innerHTML = `<img src="${rawUrl}" style="max-height:60px;"><div class="hint">点击更换 Logo</div>`;
     showStatus("✅ Logo 上传成功！点底部「保存全部修改」生效");
   } catch(e) { showStatus("Logo 上传失败: " + e.message, "err"); }
 }
