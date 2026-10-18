@@ -33,11 +33,16 @@
   }
   .slide.active { opacity:1; pointer-events:auto; }
   .slide img, .slide video {
-    width:100%; height:100%; object-fit:cover;
-    transform:scale(1.08);
-    transition:transform 8s linear;
+    width:100%; height:100%; object-fit:contain;
+    position:relative; z-index:2;
   }
-  .slide.active img, .slide.active video { transform:scale(1.18); }
+  .slide { background:#000; }
+  .slide::before {
+    content:''; position:absolute; inset:0;
+    background:inherit; background-size:cover; background-position:center;
+    filter:blur(40px) brightness(0.5); z-index:1;
+  }
+  .slide.active img, .slide.active video { transform:scale(1.02); }
 
   /* 暗角 + 底部渐变 */
   .vignette {
