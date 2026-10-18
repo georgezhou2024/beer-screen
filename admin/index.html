@@ -236,13 +236,14 @@ function renderForm() {
           <input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value">
         </div>
       </div>
-      <label>点预览图直接换照片/视频</label>
+      <label>点预览图换照片，或点下面按钮传视频</label>
       <label class="dropzone">
-        <input type="file" accept="image/*,video/mp4" style="display:none" data-i="${i}">
-        ${isImg ? `<img src="${p(s.src)}" style="max-width:100%;max-height:180px;border-radius:4px;display:block;margin:0;"><div class="hint" style="text-align:left;margin-top:8px;">点击更换</div>` :
-          (s.type==="video" ? `<div style="padding:20px 0;">🎞 当前视频: ${s.src||''}<div class="hint">点击更换视频</div></div>` :
-          `<div style="padding:20px 0;">＋ 点击选择图片上传<div class="hint">或拖入文件</div></div>`)}
+        <input type="file" accept="image/*,video/mp4,video/webm" style="display:none" data-i="${i}">
+        ${isImg ? `<img src="${p(s.src)}" style="max-width:100%;max-height:180px;border-radius:4px;display:block;margin:0;"><div class="hint" style="text-align:left;margin-top:8px;">点击更换图片</div>` :
+          (s.type==="video" ? `<div style="padding:16px 0;">🎞 当前视频: <span style="color:#C48B47;">${s.src||''}</span><div class="hint" style="text-align:left;margin-top:6px;">点击更换视频</div></div>` :
+          `<div style="padding:20px 0;">＋ 点击选择图片上传<div class="hint" style="text-align:left;margin-top:6px;">或拖入图片</div></div>`)}
       </label>
+      <button class="secondary" style="margin-top:8px;width:100%" onclick="document.querySelectorAll('#slidesHost .slide-item')[${i}].querySelector('input[type=file]').accept='video/mp4,video/webm';document.querySelectorAll('#slidesHost .slide-item')[${i}].querySelector('input[type=file]').click();slides[${i}].type='video'">🎬 上传视频 (MP4)</button>
       <label>标题</label>
       <input type="text" value="${s.title||''}" onchange="slides[${i}].title=this.value">
       <label>副标题</label>
