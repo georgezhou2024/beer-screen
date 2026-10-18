@@ -48,7 +48,7 @@
       "title": "啤酒详细解",
       "subtitle": "Explanation of each type of beer",
       "duration": 20,
-      "enabled": false
+      "enabled": true
     }
   ]
 }
