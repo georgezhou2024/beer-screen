@@ -1,12 +1,294 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>世界啤酒文化 · 后台管理</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界啤酒文化 · 后台管理</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:#141414; color:#E8E4DC; padding:24px; line-height:1.6; }
+  h1 { font-size:22px; margin-bottom:20px; color:#C48B47; }
+  h2 { font-size:16px; margin:24px 0 12px; color:#F5F2EC; border-left:3px solid #C48B47; padding-left:10px; }
+  .card { background:#1E1E1E; border-radius:8px; padding:20px; margin-bottom:16px; }
+  input, textarea, select {
+    width:100%; background:#0C0C0C; border:1px solid #333; color:#E8E4DC;
+    padding:8px 10px; border-radius:4px; font-size:14px; font-family:inherit;
+  }
+  input:focus, textarea:focus { outline:none; border-color:#C48B47; }
+  textarea { min-height:60px; resize:vertical; }
+  label { display:block; font-size:12px; color:#999; margin:10px 0 4px; }
+  button {
+    background:#C48B47; color:#0C0C0C; border:none; padding:10px 20px;
+    border-radius:4px; font-weight:700; cursor:pointer; font-size:14px; margin-right:8px;
+  }
+  button:hover { background:#D99B57; }
+  button.secondary { background:#333; color:#E8E4DC; }
+  button.danger { background:#7a2a2a; }
+  .row { display:flex; gap:10px; align-items:center; }
+  .slide-item { background:#0C0C0C; border:1px solid #2a2a2a; border-radius:6px; padding:14px; margin-bottom:10px; }
+  .slide-item .head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .slide-item .head b { color:#C48B47; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .status { padding:10px; border-radius:4px; margin:10px 0; font-size:13px; display:none; }
+  .status.ok { display:block; background:#1a3a1a; color:#7f7; }
+  .status.err { display:block; background:#3a1a1a; color:#f77; }
+  .hidden { display:none; }
+  img.thumb { max-width:120px; max-height:80px; border-radius:4px; display:block; margin-top:6px; }
+  .hint { font-size:12px; color:#888; margin-top:4px; }
+  a { color:#C48B47; }
+</style>
 </head>
 <body>
-  <!-- Decap CMS -->
-  <script src="https://unpkg.com/@decap-cms/app@3.1.3/dist/decap-cms.js"></script>
+<h1>世界啤酒文化 · 后台管理</h1>
+
+<div id="loginCard" class="card">
+  <h2>第一步：连接你的 GitHub</h2>
+  <p style="font-size:13px;color:#aaa;margin-bottom:12px">
+    需要一个 GitHub Personal Access Token（只填一次，存在你浏览器里）。
+    第一次用：<a href="https://github.com/settings/tokens/new?scopes=repo&description=beer-screen-admin" target="_blank">点这里生成 Token</a>
+    （勾选 <b>repo</b> 权限，生成后复制粘贴到下面）。
+  </p>
+  <label>GitHub Token</label>
+  <input type="password" id="token" placeholder="ghp_xxxxx">
+  <div style="margin-top:12px">
+    <button onclick="saveToken()">保存并连接</button>
+  </div>
+</div>
+
+<div id="mainUI" class="hidden">
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <b>已连接：georgezhou2024/beer-screen</b>
+      <button class="secondary" onclick="logout()">切换账号</button>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+
+  <h2>全局设置（Logo / 角标）</h2>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label>Logo 图片地址（上传后自动填）</label>
+        <input type="text" id="logoSrc">
+        <input type="file" id="logoFile" accept="image/*" style="margin-top:6px">
+        <button class="secondary" style="margin-top:6px" onclick="uploadLogo()">上传 Logo</button>
+      </div>
+      <div>
+        <label>Logo 位置</label>
+        <select id="logoPos">
+          <option value="top-right">右上角</option>
+          <option value="top-left">左上角</option>
+        </select>
+        <label style="margin-top:10px"><input type="checkbox" id="logoVis" style="width:auto"> 显示 Logo</label>
+      </div>
+    </div>
+    <hr style="border-color:#2a2a2a;margin:16px 0">
+    <label>角落小字内容</label>
+    <input type="text" id="cornerText" placeholder="WORLD BEER CULTURE">
+    <div class="grid2" style="margin-top:10px">
+      <div>
+        <label>位置</label>
+        <select id="cornerPos">
+          <option value="bottom-right">右下角</option>
+          <option value="bottom-left">左下角</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <label><input type="checkbox" id="cornerVis" style="width:auto"> 显示角落文字</label>
+      </div>
+    </div>
+  </div>
+
+  <h2>轮播素材列表</h2>
+  <div id="slidesHost"></div>
+  <button class="secondary" onclick="addSlide()">+ 新增一条素材</button>
+
+  <div style="margin-top:24px">
+    <button onclick="saveAll()">保存全部修改</button>
+    <button class="secondary" onclick="loadAll()">重新加载</button>
+  </div>
+</div>
+
+<script>
+const REPO = "georgezhou2024/beer-screen";
+let token = localStorage.getItem("beer_token") || "";
+let slides = [];
+let settings = { logo:{src:"",position:"top-right",visible:false}, cornerText:{text:"",position:"bottom-right",visible:false} };
+let slidesSha = "", settingsSha = "";
+
+function showStatus(msg, ok=true) {
+  const s = document.getElementById("status");
+  s.textContent = msg;
+  s.className = "status " + (ok ? "ok" : "err");
+  setTimeout(()=>{ s.className="status"; }, 4000);
+}
+
+function saveToken() {
+  token = document.getElementById("token").value.trim();
+  if (!token) { showStatus("请先填 Token", false); return; }
+  localStorage.setItem("beer_token", token);
+  enterMain();
+}
+function logout() {
+  localStorage.removeItem("beer_token");
+  location.reload();
+}
+function enterMain() {
+  document.getElementById("loginCard").classList.add("hidden");
+  document.getElementById("mainUI").classList.remove("hidden");
+  loadAll();
+}
+
+async function api(path, method="GET", body=null) {
+  const r = await fetch("https://api.github.com" + path, {
+    method,
+    headers: {
+      "Authorization": "token " + token,
+      "Accept": "application/vnd.github.v3+json",
+      "Content-Type": "application/json"
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if (!r.ok) throw new Error("GitHub API " + r.status + ": " + await r.text());
+  return r.json();
+}
+
+async function loadFile(path) {
+  const f = await api("/repos/" + REPO + "/contents/" + path + "?ref=main");
+  const content = JSON.parse(decodeURIComponent(escape(atob(f.content))));
+  return { data: content, sha: f.sha };
+}
+
+async function loadAll() {
+  try {
+    const s = await loadFile("content/slides.json");
+    slides = s.data.slides || s.data;
+    slidesSha = s.sha;
+    const st = await loadFile("content/settings.json");
+    settings = st.data;
+    settingsSha = st.sha;
+    renderForm();
+    showStatus("加载成功");
+  } catch(e) { showStatus("加载失败: " + e.message, false); }
+}
+
+function renderForm() {
+  // settings
+  document.getElementById("logoSrc").value = settings.logo.src || "";
+  document.getElementById("logoPos").value = settings.logo.position || "top-right";
+  document.getElementById("logoVis").checked = !!settings.logo.visible;
+  document.getElementById("cornerText").value = settings.cornerText.text || "";
+  document.getElementById("cornerPos").value = settings.cornerText.position || "bottom-right";
+  document.getElementById("cornerVis").checked = !!settings.cornerText.visible;
+  // slides
+  const host = document.getElementById("slidesHost");
+  host.innerHTML = "";
+  slides.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "slide-item";
+    div.innerHTML = `
+      <div class="head">
+        <b>#${i+1} ${s.title || "(未命名)"}</b>
+        <div>
+          <button class="secondary" onclick="moveSlide(${i},-1)">↑</button>
+          <button class="secondary" onclick="moveSlide(${i},1)">↓</button>
+          <button class="danger" onclick="delSlide(${i})">删除</button>
+        </div>
+      </div>
+      <label>类型</label>
+      <select onchange="slides[${i}].type=this.value;renderForm()">
+        <option value="image" ${s.type==="image"?"selected":""}>图片</option>
+        <option value="video" ${s.type==="video"?"selected":""}>视频(MP4)</option>
+      </select>
+      <label>图片/视频地址（上传后自动填）</label>
+      <input type="text" value="${s.src||''}" onchange="slides[${i}].src=this.value">
+      <input type="file" accept="image/*,video/mp4" style="margin-top:6px" onchange="uploadFileForSlide(${i}, this)">
+      ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img class="thumb" src="${s.src}">` : ""}
+      <div class="grid2">
+        <div><label>标签(金色小字)</label><input type="text" value="${s.tag||''}" onchange="slides[${i}].tag=this.value"></div>
+        <div><label>停留秒数(图片)</label><input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value"></div>
+      </div>
+      <label>主标题</label>
+      <input type="text" value="${s.title||''}" onchange="slides[${i}].title=this.value">
+      <label>副标题</label>
+      <textarea onchange="slides[${i}].subtitle=this.value">${s.subtitle||''}</textarea>
+      <label style="margin-top:8px"><input type="checkbox" style="width:auto" ${s.enabled!==false?"checked":""} onchange="slides[${i}].enabled=this.checked"> 启用此条</label>
+    `;
+    host.appendChild(div);
+  });
+}
+
+function addSlide() {
+  slides.push({ id:"slide"+Date.now(), type:"image", src:"", tag:"", title:"新素材", subtitle:"", duration:6, enabled:true });
+  renderForm();
+}
+function delSlide(i) { if(confirm("删除这条？")) { slides.splice(i,1); renderForm(); } }
+function moveSlide(i, d) {
+  const j = i+d;
+  if (j<0 || j>=slides.length) return;
+  [slides[i],slides[j]] = [slides[j],slides[i]];
+  renderForm();
+}
+
+async function uploadFileForSlide(i, input) {
+  const f = input.files[0];
+  if (!f) return;
+  showStatus("上传中...");
+  const path = "assets/uploads/" + Date.now() + "-" + f.name.replace(/[^\w.\-]/g,"_");
+  const b64 = btoa(await f.arrayBuffer().then(buf => String.fromCharCode(...new Uint8Array(buf))));
+  await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+    message: "upload: " + f.name,
+    content: b64
+  });
+  slides[i].src = "/" + path;
+  renderForm();
+  showStatus("上传成功，记得点保存");
+}
+
+async function uploadLogo() {
+  const f = document.getElementById("logoFile").files[0];
+  if (!f) { showStatus("先选文件", false); return; }
+  showStatus("上传中...");
+  const path = "assets/uploads/logo-" + Date.now() + "." + (f.name.split(".").pop());
+  const b64 = btoa(await f.arrayBuffer().then(buf => String.fromCharCode(...new Uint8Array(buf))));
+  await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+    message: "upload logo", content: b64
+  });
+  document.getElementById("logoSrc").value = "/" + path;
+  showStatus("Logo 上传成功，记得点保存");
+}
+
+async function saveAll() {
+  try {
+    settings.logo.src = document.getElementById("logoSrc").value;
+    settings.logo.position = document.getElementById("logoPos").value;
+    settings.logo.visible = document.getElementById("logoVis").checked;
+    settings.cornerText.text = document.getElementById("cornerText").value;
+    settings.cornerText.position = document.getElementById("cornerPos").value;
+    settings.cornerText.visible = document.getElementById("cornerVis").checked;
+
+    showStatus("保存中...");
+    // save settings
+    await api("/repos/"+REPO+"/contents/content/settings.json", "PUT", {
+      message: "update settings",
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(settings, null, 2)))),
+      sha: settingsSha
+    });
+    // save slides
+    await api("/repos/"+REPO+"/contents/content/slides.json", "PUT", {
+      message: "update slides",
+      content: btoa(unescape(encodeURIComponent(JSON.stringify({slides: slides}, null, 2)))),
+      sha: slidesSha
+    });
+    showStatus("全部保存成功！Vercel 正在自动重新部署，电视端 20 秒内更新");
+    // reload shas
+    await loadAll();
+  } catch(e) { showStatus("保存失败: " + e.message, false); }
+}
+
+// init
+if (token) enterMain();
+</script>
 </body>
 </html>
