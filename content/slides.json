@@ -1,54 +1,55 @@
-{
+﻿{
   "slides": [
     {
       "id": "stout",
       "type": "image",
-      "src": "/assets/images/ipa.jpg",
-      "tag": "STOUT · IRELAND",
-      "title": "健力士世涛",
-      "subtitle": "烘烤大麦带来的咖啡与黑巧克力气息，绵密奶沫，爱尔兰的黑色灵魂。",
+      "src": "assets/images/ipa.jpg",
+      "tag": "STOUT 路 IRELAND",
+      "title": "鍋ュ姏澹笘娑?,
+      "subtitle": "鐑樼儰澶ч害甯︽潵鐨勫挅鍟′笌榛戝阀鍏嬪姏姘旀伅锛岀坏瀵嗗ザ娌紝鐖卞皵鍏扮殑榛戣壊鐏甸瓊銆?,
       "duration": 6,
       "enabled": true
     },
     {
       "id": "ipa",
       "type": "image",
-      "src": "/assets/images/ipa.jpg",
-      "tag": "IPA · CRAFT REVOLUTION",
-      "title": "美式 IPA",
-      "subtitle": "西楚、马赛克、酒花爆破——精酿革命的味道，苦度与香气的极致平衡。",
+      "src": "assets/images/ipa.jpg",
+      "tag": "IPA 路 CRAFT REVOLUTION",
+      "title": "缇庡紡 IPA",
+      "subtitle": "瑗挎銆侀┈璧涘厠銆侀厭鑺辩垎鐮粹€斺€旂簿閰块潻鍛界殑鍛抽亾锛岃嫤搴︿笌棣欐皵鐨勬瀬鑷村钩琛°€?,
       "duration": 6,
       "enabled": true
     },
     {
       "id": "bar",
       "type": "image",
-      "src": "/assets/images/bar.jpg",
+      "src": "assets/images/bar.jpg",
       "tag": "CRAFT BEER HALL",
-      "title": "精酿酒墙",
-      "subtitle": "数十款生啤龙头，每一杯都是一个产地的故事。",
+      "title": "绮鹃吙閰掑",
+      "subtitle": "鏁板崄娆剧敓鍟ら緳澶达紝姣忎竴鏉兘鏄竴涓骇鍦扮殑鏁呬簨銆?,
       "duration": 6,
       "enabled": true
     },
     {
       "id": "brewery",
       "type": "image",
-      "src": "/assets/images/brewery.jpg",
+      "src": "assets/images/brewery.jpg",
       "tag": "BREWHOUSE",
-      "title": "酿造车间",
-      "subtitle": "麦芽、酒花、酵母、时间——从谷物到杯中的炼金术。",
+      "title": "閰块€犺溅闂?,
+      "subtitle": "楹﹁娊銆侀厭鑺便€侀叺姣嶃€佹椂闂粹€斺€斾粠璋风墿鍒版澂涓殑鐐奸噾鏈€?,
       "duration": 6,
       "enabled": true
     },
     {
       "id": "foam",
       "type": "image",
-      "src": "/assets/images/foam.jpg",
-      "tag": "HEAD · 泡沫之诗",
-      "title": "泡沫",
-      "subtitle": "酒头倾注的瞬间，二氧化碳编织出两指厚的奶油帽。",
+      "src": "assets/images/foam.jpg",
+      "tag": "HEAD 路 娉℃搏涔嬭瘲",
+      "title": "娉℃搏",
+      "subtitle": "閰掑ご鍊炬敞鐨勭灛闂达紝浜屾哀鍖栫⒊缂栫粐鍑轰袱鎸囧帤鐨勫ザ娌瑰附銆?,
       "duration": 6,
       "enabled": true
     }
   ]
 }
+

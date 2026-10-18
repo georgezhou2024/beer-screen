@@ -122,12 +122,20 @@ let settings = { logo:{src:'',position:'top-right',visible:false}, cornerText:{t
 let current = 0;
 let timer = null;
 let progTimer = null;
+// 自动计算base路径（兼容GitHub Pages子目录和Vercel根目录）
+const BASE = location.pathname.replace(/\/admin.*$/, '').replace(/\/$/, '');
+function p(src) {
+  if (!src) return src;
+  if (src.startsWith('http')) return src;
+  if (src.startsWith('/')) return BASE + src;
+  return BASE + '/' + src;
+}
 
 async function loadConfig() {
   try {
     const [s, st] = await Promise.all([
-      fetch('content/slides.json?t=' + Date.now()).then(r=>r.json()),
-      fetch('content/settings.json?t=' + Date.now()).then(r=>r.json())
+      fetch(p('content/slides.json') + '?t=' + Date.now()).then(r=>r.json()),
+      fetch(p('content/settings.json') + '?t=' + Date.now()).then(r=>r.json())
     ]);
     slides = (s.slides || s).filter(x => x.enabled !== false);
     settings = st;
@@ -143,7 +151,7 @@ function renderShell() {
   if (settings.logo && settings.logo.visible && settings.logo.src) {
     const d = document.createElement('div');
     d.className = 'logo ' + (settings.logo.position === 'top-left' ? 'tl' : 'tr');
-    d.innerHTML = `<img src="${settings.logo.src}" alt="logo">`;
+    d.innerHTML = `<img src="${p(settings.logo.src)}" alt="logo">`;
     lm.appendChild(d);
   }
   const cm = document.getElementById('cornerMount');
@@ -163,10 +171,10 @@ function renderSlides() {
     const div = document.createElement('div');
     div.className = 'slide' + (i===0 ? ' active' : '');
     if (s.type === 'video') {
-      div.innerHTML = `<video src="${s.src}" muted loop playsinline preload="auto"></video>
+      div.innerHTML = `<video src="${p(s.src)}" muted loop playsinline preload="auto"></video>
         <div class="caption"><div class="tag">${s.tag||''}</div><div class="title">${s.title||''}</div><div class="subtitle">${s.subtitle||''}</div></div>`;
     } else {
-      div.innerHTML = `<img src="${s.src}" alt="${s.title||''}">
+      div.innerHTML = `<img src="${p(s.src)}" alt="${s.title||''}">
         <div class="caption"><div class="tag">${s.tag||''}</div><div class="title">${s.title||''}</div><div class="subtitle">${s.subtitle||''}</div></div>`;
     }
     host.appendChild(div);

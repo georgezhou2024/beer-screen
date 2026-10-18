@@ -116,6 +116,13 @@ let token = localStorage.getItem("beer_token") || "";
 let slides = [];
 let settings = { logo:{src:"",position:"top-right",visible:false}, cornerText:{text:"",position:"bottom-right",visible:false} };
 let slidesSha = "", settingsSha = "";
+const BASE = location.pathname.replace(/\/admin.*$/, '').replace(/\/$/, '');
+function p(src) {
+  if (!src) return src;
+  if (src.startsWith('http')) return src;
+  if (src.startsWith('/')) return BASE + src;
+  return BASE + '/' + src;
+}
 
 function showStatus(msg, ok=true) {
   const s = document.getElementById("status");
@@ -204,7 +211,7 @@ function renderForm() {
       <label>图片/视频地址（上传后自动填）</label>
       <input type="text" value="${s.src||''}" onchange="slides[${i}].src=this.value">
       <input type="file" accept="image/*,video/mp4" style="margin-top:6px" onchange="uploadFileForSlide(${i}, this)">
-      ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img class="thumb" src="${s.src}">` : ""}
+      ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img class="thumb" src="${p(s.src)}">` : ""}
       <div class="grid2">
         <div><label>标签(金色小字)</label><input type="text" value="${s.tag||''}" onchange="slides[${i}].tag=this.value"></div>
         <div><label>停留秒数(图片)</label><input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value"></div>
@@ -241,7 +248,7 @@ async function uploadFileForSlide(i, input) {
     message: "upload: " + f.name,
     content: b64
   });
-  slides[i].src = "/" + path;
+  slides[i].src = path;
   renderForm();
   showStatus("上传成功，记得点保存");
 }
@@ -255,7 +262,7 @@ async function uploadLogo() {
   await api("/repos/"+REPO+"/contents/"+path, "PUT", {
     message: "upload logo", content: b64
   });
-  document.getElementById("logoSrc").value = "/" + path;
+  document.getElementById("logoSrc").value = path;
   showStatus("Logo 上传成功，记得点保存");
 }
 
