@@ -105,6 +105,17 @@
         <label><input type="checkbox" id="cornerVis" style="width:auto"> 显示角落文字</label>
       </div>
     </div>
+    <hr style="border-color:#2a2a2a;margin:16px 0">
+    <div class="grid2">
+      <div>
+        <label>主标题字号 (px，默认 64)</label>
+        <input type="number" id="titleSize" value="64">
+      </div>
+      <div>
+        <label>副标题字号 (px，默认 22)</label>
+        <input type="number" id="subSize" value="22">
+      </div>
+    </div>
   </div>
 
   <h2>轮播素材（点预览图直接换图）</h2>
@@ -201,6 +212,8 @@ function renderForm() {
   document.getElementById("cornerText").value = settings.cornerText.text || "";
   document.getElementById("cornerPos").value = settings.cornerText.position || "bottom-right";
   document.getElementById("cornerVis").checked = !!settings.cornerText.visible;
+  document.getElementById("titleSize").value = settings.titleSize || 64;
+  document.getElementById("subSize").value = settings.subSize || 22;
   const lp = document.getElementById("logoPreview");
   if (settings.logo.src) {
     lp.innerHTML = `<img src="${p(settings.logo.src)}"><div class="hint">点击更换 Logo</div>`;
@@ -365,6 +378,8 @@ async function saveAll() {
     settings.cornerText.text = document.getElementById("cornerText").value;
     settings.cornerText.position = document.getElementById("cornerPos").value;
     settings.cornerText.visible = document.getElementById("cornerVis").checked;
+    settings.titleSize = +document.getElementById("titleSize").value || 64;
+    settings.subSize = +document.getElementById("subSize").value || 22;
 
     // 重新拉最新sha，避免409冲突
     const sSha = await getFileSha("content/slides.json");
