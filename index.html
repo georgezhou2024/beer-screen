@@ -134,8 +134,8 @@ function p(src) {
 async function loadConfig() {
   try {
     const [s, st] = await Promise.all([
-      fetch(p('content/slides.json') + '?t=' + Date.now()).then(r=>r.json()),
-      fetch(p('content/settings.json') + '?t=' + Date.now()).then(r=>r.json())
+      fetch(p('content/slides.json') + '?t=' + Date.now(), {cache:'no-store'}).then(r=>r.json()),
+      fetch(p('content/settings.json') + '?t=' + Date.now(), {cache:'no-store'}).then(r=>r.json())
     ]);
     slides = (s.slides || s).filter(x => x.enabled !== false);
     settings = st;

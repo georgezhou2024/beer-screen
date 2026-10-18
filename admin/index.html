@@ -32,21 +32,26 @@
   .status { padding:10px; border-radius:4px; margin:10px 0; font-size:13px; display:none; }
   .status.ok { display:block; background:#1a3a1a; color:#7f7; }
   .status.err { display:block; background:#3a1a1a; color:#f77; }
+  .status.busy { display:block; background:#3a3a1a; color:#ff7; }
   .hidden { display:none; }
-  img.thumb { max-width:120px; max-height:80px; border-radius:4px; display:block; margin-top:6px; }
-  .hint { font-size:12px; color:#888; margin-top:4px; }
+  .dropzone { cursor:pointer; display:block; margin-top:8px; border:2px dashed #444; border-radius:6px; padding:14px; text-align:center; color:#888; font-size:13px; transition:border-color .2s; }
+  .dropzone:hover { border-color:#C48B47; }
+  .dropzone img { max-width:100%; max-height:180px; border-radius:4px; display:block; margin:0 auto; }
+  .dropzone .hint { margin-top:8px; color:#C48B47; font-size:12px; }
   a { color:#C48B47; }
+  .progress-bar { height:4px; background:#333; border-radius:2px; margin-top:8px; overflow:hidden; }
+  .progress-bar > div { height:100%; background:#C48B47; width:0%; transition:width .2s; }
 </style>
 </head>
 <body>
 <h1>世界啤酒文化 · 后台管理</h1>
 
 <div id="loginCard" class="card">
-  <h2>第一步：连接你的 GitHub</h2>
+  <h2>第一步：连接 GitHub</h2>
   <p style="font-size:13px;color:#aaa;margin-bottom:12px">
-    需要一个 GitHub Personal Access Token（只填一次，存在你浏览器里）。
-    第一次用：<a href="https://github.com/settings/tokens/new?scopes=repo&description=beer-screen-admin" target="_blank">点这里生成 Token</a>
-    （勾选 <b>repo</b> 权限，生成后复制粘贴到下面）。
+    需要一个 GitHub Token（只填一次，存在浏览器里）。
+    <a href="https://github.com/settings/tokens/new?scopes=repo&description=beer-admin" target="_blank">点这里生成 Token</a>
+    （勾选 repo，拉到底 Generate，复制粘贴）。
   </p>
   <label>GitHub Token</label>
   <input type="password" id="token" placeholder="ghp_xxxxx">
@@ -59,7 +64,7 @@
   <div class="card">
     <div class="row" style="justify-content:space-between">
       <b>已连接：georgezhou2024/beer-screen</b>
-      <button class="secondary" onclick="logout()">切换账号</button>
+      <button class="secondary" onclick="logout()">退出</button>
     </div>
     <div id="status" class="status"></div>
   </div>
@@ -68,11 +73,11 @@
   <div class="card">
     <div class="grid2">
       <div>
-        <label>Logo 图片（点预览直接换）</label>
+        <label>店铺 Logo（点预览直接换）</label>
         <input type="text" id="logoSrc" placeholder="上传后自动填">
-        <label class="dropzone" style="cursor:pointer;display:block;margin-top:6px;border:2px dashed #444;border-radius:6px;padding:10px;text-align:center;color:#888;font-size:13px;">
+        <label class="dropzone">
           <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="uploadLogo()">
-          <span id="logoPreview">＋ 点击上传 Logo（透明PNG最佳）</span>
+          <span id="logoPreview">＋ 点击上传 Logo</span>
         </label>
       </div>
       <div>
@@ -86,7 +91,7 @@
     </div>
     <hr style="border-color:#2a2a2a;margin:16px 0">
     <label>角落小字内容</label>
-    <input type="text" id="cornerText" placeholder="WORLD BEER CULTURE">
+    <input type="text" id="cornerText">
     <div class="grid2" style="margin-top:10px">
       <div>
         <label>位置</label>
@@ -102,9 +107,9 @@
     </div>
   </div>
 
-  <h2>轮播素材列表</h2>
+  <h2>轮播素材（点预览图直接换图）</h2>
   <div id="slidesHost"></div>
-  <button class="secondary" onclick="addSlide()">+ 新增一条素材</button>
+  <button class="secondary" onclick="addSlide()">+ 新增一条</button>
 
   <div style="margin-top:24px">
     <button onclick="saveAll()">保存全部修改</button>
@@ -117,32 +122,28 @@ const REPO = "georgezhou2024/beer-screen";
 let token = localStorage.getItem("beer_token") || "";
 let slides = [];
 let settings = { logo:{src:"",position:"top-right",visible:false}, cornerText:{text:"",position:"bottom-right",visible:false} };
-let slidesSha = "", settingsSha = "";
 const BASE = location.pathname.replace(/\/admin.*$/, '').replace(/\/$/, '');
 function p(src) {
-  if (!src) return src;
+  if (!src) return "";
   if (src.startsWith('http')) return src;
   if (src.startsWith('/')) return BASE + src;
   return BASE + '/' + src;
 }
 
-function showStatus(msg, ok=true) {
+function showStatus(msg, type="ok") {
   const s = document.getElementById("status");
   s.textContent = msg;
-  s.className = "status " + (ok ? "ok" : "err");
-  setTimeout(()=>{ s.className="status"; }, 4000);
+  s.className = "status " + type;
+  if (type !== "busy") setTimeout(()=>{ s.className="status"; }, 5000);
 }
 
 function saveToken() {
   token = document.getElementById("token").value.trim();
-  if (!token) { showStatus("请先填 Token", false); return; }
+  if (!token) { showStatus("请先填 Token", "err"); return; }
   localStorage.setItem("beer_token", token);
   enterMain();
 }
-function logout() {
-  localStorage.removeItem("beer_token");
-  location.reload();
-}
+function logout() { localStorage.removeItem("beer_token"); location.reload(); }
 function enterMain() {
   document.getElementById("loginCard").classList.add("hidden");
   document.getElementById("mainUI").classList.remove("hidden");
@@ -154,55 +155,65 @@ async function api(path, method="GET", body=null) {
     method,
     headers: {
       "Authorization": "token " + token,
-      "Accept": "application/vnd.github.v3+json",
-      "Content-Type": "application/json"
+      "Accept": "application/vnd.github.v3+json"
     },
     body: body ? JSON.stringify(body) : null
   });
-  if (!r.ok) throw new Error("GitHub API " + r.status + ": " + await r.text());
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error("GitHub " + r.status + ": " + t);
+  }
   return r.json();
 }
 
-async function loadFile(path) {
+function b64encode(buf) {
+  let bin = '';
+  new Uint8Array(buf).forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+
+async function getFileSha(path) {
   const f = await api("/repos/" + REPO + "/contents/" + path + "?ref=main");
-  const bytes = Uint8Array.from(atob(f.content.replace(/\n/g,'')), c => c.charCodeAt(0));
-  const content = new TextDecoder('utf-8').decode(bytes);
-  return { data: JSON.parse(content), sha: f.sha };
+  return f.sha;
 }
 
 async function loadAll() {
   try {
-    const s = await loadFile("content/slides.json");
-    slides = s.data.slides || s.data;
-    slidesSha = s.sha;
-    const st = await loadFile("content/settings.json");
-    settings = st.data;
-    settingsSha = st.sha;
+    showStatus("加载中...", "busy");
+    // slides
+    const sf = await api("/repos/" + REPO + "/contents/content/slides.json?ref=main");
+    const sBytes = Uint8Array.from(atob(sf.content.replace(/\n/g,'')), c => c.charCodeAt(0));
+    const sData = JSON.parse(new TextDecoder('utf-8').decode(sBytes));
+    slides = sData.slides || sData;
+    // settings
+    const stf = await api("/repos/" + REPO + "/contents/content/settings.json?ref=main");
+    const stBytes = Uint8Array.from(atob(stf.content.replace(/\n/g,'')), c => c.charCodeAt(0));
+    settings = JSON.parse(new TextDecoder('utf-8').decode(stBytes));
     renderForm();
-    showStatus("加载成功");
-  } catch(e) { showStatus("加载失败: " + e.message, false); }
+    showStatus("加载成功，共 " + slides.length + " 条素材");
+  } catch(e) { showStatus("加载失败: " + e.message, "err"); }
 }
 
 function renderForm() {
-  // settings
   document.getElementById("logoSrc").value = settings.logo.src || "";
   document.getElementById("logoPos").value = settings.logo.position || "top-right";
   document.getElementById("logoVis").checked = !!settings.logo.visible;
-  const lp = document.getElementById("logoPreview");
-  if (settings.logo.src) {
-    lp.innerHTML = `<img src="${p(settings.logo.src)}" style="max-height:60px;"><div style="margin-top:6px;color:#C48B47;">点击更换 Logo</div>`;
-  } else {
-    lp.innerHTML = "＋ 点击上传 Logo（透明PNG最佳）";
-  }
   document.getElementById("cornerText").value = settings.cornerText.text || "";
   document.getElementById("cornerPos").value = settings.cornerText.position || "bottom-right";
   document.getElementById("cornerVis").checked = !!settings.cornerText.visible;
-  // slides
+  const lp = document.getElementById("logoPreview");
+  if (settings.logo.src) {
+    lp.innerHTML = `<img src="${p(settings.logo.src)}"><div class="hint">点击更换 Logo</div>`;
+  } else {
+    lp.innerHTML = "＋ 点击上传 Logo（透明PNG最佳）";
+  }
+
   const host = document.getElementById("slidesHost");
   host.innerHTML = "";
   slides.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "slide-item";
+    const isImg = s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i);
     div.innerHTML = `
       <div class="head">
         <b>#${i+1} ${s.title || "(未命名)"}</b>
@@ -212,27 +223,38 @@ function renderForm() {
           <button class="danger" onclick="delSlide(${i})">删除</button>
         </div>
       </div>
-      <label>类型</label>
-      <select onchange="slides[${i}].type=this.value;renderForm()">
-        <option value="image" ${s.type==="image"?"selected":""}>图片</option>
-        <option value="video" ${s.type==="video"?"selected":""}>视频(MP4)</option>
-      </select>
-      <label>图片/视频（点下面预览图直接换）</label>
-      <input type="text" value="${s.src||''}" onchange="slides[${i}].src=this.value" placeholder="assets/...">
-      <label class="dropzone" style="cursor:pointer;display:block;margin-top:8px;border:2px dashed #444;border-radius:6px;padding:14px;text-align:center;color:#888;font-size:13px;">
-        <input type="file" accept="image/*,video/mp4" style="display:none" onchange="uploadFileForSlide(${i}, this)">
-        ${s.src && s.src.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? `<img src="${p(s.src)}" style="max-width:100%;max-height:160px;border-radius:4px;display:block;margin:0 auto;"><div style="margin-top:8px;color:#C48B47;">点击这张图更换</div>` : `<div style="padding:20px 0;">＋ 点击选择图片或视频上传</div>`}
-      </label>
       <div class="grid2">
-        <div><label>标签(金色小字)</label><input type="text" value="${s.tag||''}" onchange="slides[${i}].tag=this.value"></div>
-        <div><label>停留秒数(图片)</label><input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value"></div>
+        <div>
+          <label>类型</label>
+          <select onchange="slides[${i}].type=this.value">
+            <option value="image" ${s.type==="image"?"selected":""}>图片</option>
+            <option value="video" ${s.type==="video"?"selected":""}>视频(MP4)</option>
+          </select>
+        </div>
+        <div>
+          <label>停留秒数</label>
+          <input type="number" value="${s.duration||6}" onchange="slides[${i}].duration=+this.value">
+        </div>
       </div>
-      <label>主标题</label>
+      <label>点预览图直接换照片/视频</label>
+      <label class="dropzone">
+        <input type="file" accept="image/*,video/mp4" style="display:none" data-i="${i}">
+        ${isImg ? `<img src="${p(s.src)}"><div class="hint">点击更换</div>` :
+          (s.type==="video" ? `<div style="padding:20px 0;">🎞 当前视频: ${s.src||''}<div class="hint">点击更换视频</div></div>` :
+          `<div style="padding:20px 0;">＋ 点击选择图片上传<div class="hint">或拖入文件</div></div>`)}
+      </label>
+      <label>标题</label>
       <input type="text" value="${s.title||''}" onchange="slides[${i}].title=this.value">
       <label>副标题</label>
       <textarea onchange="slides[${i}].subtitle=this.value">${s.subtitle||''}</textarea>
-      <label style="margin-top:8px"><input type="checkbox" style="width:auto" ${s.enabled!==false?"checked":""} onchange="slides[${i}].enabled=this.checked"> 启用此条</label>
+      <div class="grid2">
+        <div><label>标签(金色小字)</label><input type="text" value="${s.tag||''}" onchange="slides[${i}].tag=this.value"></div>
+        <div><label>&nbsp;</label><label><input type="checkbox" style="width:auto" ${s.enabled!==false?"checked":""} onchange="slides[${i}].enabled=this.checked"> 启用</label></div>
+      </div>
     `;
+    // 绑定文件选择
+    const fileInput = div.querySelector('input[type=file]');
+    fileInput.addEventListener('change', () => uploadFileForSlide(i, fileInput.files[0]));
     host.appendChild(div);
   });
 }
@@ -249,37 +271,54 @@ function moveSlide(i, d) {
   renderForm();
 }
 
-async function uploadFileForSlide(i, input) {
-  const f = input.files[0];
-  if (!f) return;
-  showStatus("上传中...");
-  const path = "assets/uploads/" + Date.now() + "-" + f.name.replace(/[^\w.\-]/g,"_");
-  const b64 = btoa(await f.arrayBuffer().then(buf => String.fromCharCode(...new Uint8Array(buf))));
-  await api("/repos/"+REPO+"/contents/"+path, "PUT", {
-    message: "upload: " + f.name,
-    content: b64
-  });
-  slides[i].src = path;
-  renderForm();
-  showStatus("上传成功，记得点保存");
+async function uploadFileForSlide(i, file) {
+  if (!file) return;
+  showStatus("上传中: " + file.name, "busy");
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const path = "assets/uploads/" + Date.now() + "-" + file.name.replace(/[^\w.\-]/g,"_");
+    const buf = await file.arrayBuffer();
+    await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+      message: "upload: " + file.name,
+      content: b64encode(buf)
+    });
+    slides[i].src = path;
+    renderForm();
+    showStatus("✅ 上传成功！记得点底部「保存全部修改」");
+  } catch(e) { showStatus("上传失败: " + e.message, "err"); }
 }
 
 async function uploadLogo() {
   const f = document.getElementById("logoFile").files[0];
-  if (!f) { showStatus("先选文件", false); return; }
-  showStatus("上传中...");
-  const path = "assets/uploads/logo-" + Date.now() + "." + (f.name.split(".").pop());
-  const b64 = btoa(await f.arrayBuffer().then(buf => String.fromCharCode(...new Uint8Array(buf))));
+  if (!f) return;
+  showStatus("上传 Logo 中...", "busy");
+  try {
+    const path = "assets/uploads/logo-" + Date.now() + "." + f.name.split('.').pop().toLowerCase();
+    const buf = await f.arrayBuffer();
+    await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+      message: "upload logo", content: b64encode(buf)
+    });
+    settings.logo.src = path;
+    renderForm();
+    showStatus("✅ Logo 上传成功！记得点底部「保存全部修改」");
+  } catch(e) { showStatus("Logo 上传失败: " + e.message, "err"); }
+}
+
+async function saveFile(path, dataObj, sha) {
+  const enc = new TextEncoder();
+  const bytes = enc.encode(JSON.stringify(dataObj, null, 2));
+  let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
   await api("/repos/"+REPO+"/contents/"+path, "PUT", {
-    message: "upload logo", content: b64
+    message: "update " + path,
+    content: btoa(bin),
+    sha: sha
   });
-  document.getElementById("logoSrc").value = path;
-  document.getElementById("logoPreview").innerHTML = `<img src="${p(path)}" style="max-height:60px;"><div style="margin-top:6px;color:#C48B47;">点击更换 Logo</div>`;
-  showStatus("Logo 上传成功，记得点保存");
 }
 
 async function saveAll() {
   try {
+    showStatus("保存中...", "busy");
+    // 先收集表单
     settings.logo.src = document.getElementById("logoSrc").value;
     settings.logo.position = document.getElementById("logoPos").value;
     settings.logo.visible = document.getElementById("logoVis").checked;
@@ -287,31 +326,19 @@ async function saveAll() {
     settings.cornerText.position = document.getElementById("cornerPos").value;
     settings.cornerText.visible = document.getElementById("cornerVis").checked;
 
-    showStatus("保存中...");
-    // save settings
-    const enc = new TextEncoder();
-    const sBytes = enc.encode(JSON.stringify(settings, null, 2));
-    let sBin = ''; sBytes.forEach(b => sBin += String.fromCharCode(b));
-    await api("/repos/"+REPO+"/contents/content/settings.json", "PUT", {
-      message: "update settings",
-      content: btoa(sBin),
-      sha: settingsSha
-    });
-    // save slides
-    const lBytes = enc.encode(JSON.stringify({slides: slides}, null, 2));
-    let lBin = ''; lBytes.forEach(b => lBin += String.fromCharCode(b));
-    await api("/repos/"+REPO+"/contents/content/slides.json", "PUT", {
-      message: "update slides",
-      content: btoa(lBin),
-      sha: slidesSha
-    });
-    showStatus("全部保存成功！Vercel 正在自动重新部署，电视端 20 秒内更新");
-    // reload shas
-    await loadAll();
-  } catch(e) { showStatus("保存失败: " + e.message, false); }
+    // 重新拉最新sha，避免409冲突
+    const sSha = await getFileSha("content/slides.json");
+    const stSha = await getFileSha("content/settings.json");
+
+    await saveFile("content/settings.json", settings, stSha);
+    await saveFile("content/slides.json", {slides: slides}, sSha);
+
+    showStatus("✅ 全部保存成功！Vercel 正在部署，约30秒后前台自动更新");
+  } catch(e) {
+    showStatus("保存失败: " + e.message, "err");
+  }
 }
 
-// init
 if (token) enterMain();
 </script>
 </body>
