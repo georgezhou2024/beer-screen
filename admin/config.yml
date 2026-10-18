@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: YOUR_GITHUB_NAME/YOUR_REPO_NAME   # ← 改成你的 GitHub 仓库，比如 zhangsan/beer-screen
+  repo: georgezhou2024/beer-screen
   branch: main
   base_url: https://decap-oauth.vercel.app
   auth_endpoint: auth
