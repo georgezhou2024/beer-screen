@@ -2,11 +2,11 @@
   "slides": [
     {
       "id": "stout",
-      "type": "image",
-      "src": "assets/uploads/1792292124308-_______.png",
+      "type": "video",
+      "src": "https://pub-850ec5e87abf47f28ec5c93b514f06e7.r2.dev/Ranking%20Popular%20IPA%20Beers%20WORST%20to%20BEST.mp4",
       "tag": "STOUT · IRELAND",
-      "title": "健力士世涛",
-      "subtitle": "烘烤大麦带来的咖啡与黑巧克力气息，绵密奶沫，爱尔兰的黑色灵魂。",
+      "title": "热门印度淡色艾尔啤酒  ",
+      "subtitle": "\nRanking Popular IPA Beers WORST to BEST",
       "duration": 20,
       "enabled": true
     },
