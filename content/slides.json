@@ -3,11 +3,11 @@
     {
       "id": "stout",
       "type": "image",
-      "src": "assets/uploads/1792289569161-4af87bfc7aced83f55231c6734dd5984.jpg",
+      "src": "assets/uploads/1792291553478-______.png",
       "tag": "STOUT · IRELAND",
       "title": "健力士世涛",
       "subtitle": "烘烤大麦带来的咖啡与黑巧克力气息，绵密奶沫，爱尔兰的黑色灵魂。",
-      "duration": 6,
+      "duration": 20,
       "enabled": true
     },
     {
@@ -23,7 +23,7 @@
     {
       "id": "bar",
       "type": "image",
-      "src": "assets/images/bar.jpg",
+      "src": "assets/uploads/1792290292985-19774376cf29713d095f91d1b9115703.jpg",
       "tag": "CRAFT BEER HALL",
       "title": "精酿酒墙",
       "subtitle": "数十款生啤龙头，每一杯都是一个产地的故事。",
