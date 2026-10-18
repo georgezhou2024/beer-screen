@@ -1,0 +1,54 @@
+{
+  "slides": [
+    {
+      "id": "stout",
+      "type": "image",
+      "src": "/assets/images/ipa.jpg",
+      "tag": "STOUT · IRELAND",
+      "title": "健力士世涛",
+      "subtitle": "烘烤大麦带来的咖啡与黑巧克力气息，绵密奶沫，爱尔兰的黑色灵魂。",
+      "duration": 6,
+      "enabled": true
+    },
+    {
+      "id": "ipa",
+      "type": "image",
+      "src": "/assets/images/ipa.jpg",
+      "tag": "IPA · CRAFT REVOLUTION",
+      "title": "美式 IPA",
+      "subtitle": "西楚、马赛克、酒花爆破——精酿革命的味道，苦度与香气的极致平衡。",
+      "duration": 6,
+      "enabled": true
+    },
+    {
+      "id": "bar",
+      "type": "image",
+      "src": "/assets/images/bar.jpg",
+      "tag": "CRAFT BEER HALL",
+      "title": "精酿酒墙",
+      "subtitle": "数十款生啤龙头，每一杯都是一个产地的故事。",
+      "duration": 6,
+      "enabled": true
+    },
+    {
+      "id": "brewery",
+      "type": "image",
+      "src": "/assets/images/brewery.jpg",
+      "tag": "BREWHOUSE",
+      "title": "酿造车间",
+      "subtitle": "麦芽、酒花、酵母、时间——从谷物到杯中的炼金术。",
+      "duration": 6,
+      "enabled": true
+    },
+    {
+      "id": "foam",
+      "type": "image",
+      "src": "/assets/images/foam.jpg",
+      "tag": "HEAD · 泡沫之诗",
+      "title": "泡沫",
+      "subtitle": "酒头倾注的瞬间，二氧化碳编织出两指厚的奶油帽。",
+      "duration": 6,
+      "enabled": true
+    }
+  ]
+}

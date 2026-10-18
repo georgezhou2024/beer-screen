@@ -1,0 +1,13 @@
+{
+  "logo": {
+    "src": "",
+    "position": "top-right",
+    "visible": true
+  },
+  "cornerText": {
+    "text": "WORLD BEER CULTURE · 世界啤酒文化展",
+    "position": "bottom-right",
+    "visible": true
+  },
+  "transition": 1800
+}

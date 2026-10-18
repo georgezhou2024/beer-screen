@@ -1,0 +1,59 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_NAME/YOUR_REPO_NAME   # ← 改成你的 GitHub 仓库，比如 zhangsan/beer-screen
+  branch: main
+  base_url: https://decap-oauth.vercel.app
+  auth_endpoint: auth
+
+publish_mode: simple
+
+media_folder: assets/uploads
+public_folder: /assets/uploads
+
+site_url: ""   # ← 部署后填你的 Vercel 域名，比如 https://beer-screen.vercel.app
+display_url: ""
+
+collections:
+  - name: slides
+    label: 轮播素材
+    files:
+      - name: slides
+        label: 轮播列表
+        file: content/slides.json
+        fields:
+          - name: slides
+            label: 轮播素材
+            label_singular: 素材
+            widget: list
+            fields:
+              - { name: id, label: 唯一ID, widget: string, hint: "英文短标识，如 stout1" }
+              - { name: type, label: 类型, widget: select, options: [{label: 图片, value: image}, {label: 视频, value: video}], default: image }
+              - { name: src, label: 图片/视频地址, widget: image, hint: "视频用 file 组件上传 MP4；图片点上传选本地图" }
+              - { name: tag, label: 标签（金色小字）, widget: string, required: false }
+              - { name: title, label: 主标题, widget: string }
+              - { name: subtitle, label: 副标题/简介, widget: text, required: false }
+              - { name: duration, label: 图片停留秒数（视频忽略）, widget: number, default: 6, min: 3, max: 30 }
+              - { name: enabled, label: 启用此条, widget: boolean, default: true }
+
+  - name: settings
+    label: 全局设置
+    files:
+      - name: settings
+        label: Logo 与角标
+        file: content/settings.json
+        fields:
+          - name: logo
+            label: 店铺 Logo
+            widget: object
+            fields:
+              - { name: src, label: Logo 图片, widget: image, required: false }
+              - { name: position, label: 位置, widget: select, options: [{label: 左上角, value: top-left}, {label: 右上角, value: top-right}], default: top-right }
+              - { name: visible, label: 显示 Logo, widget: boolean, default: true }
+          - name: cornerText
+            label: 角落小字
+            widget: object
+            fields:
+              - { name: text, label: 文字内容, widget: string, required: false }
+              - { name: position, label: 位置, widget: select, options: [{label: 左下角, value: bottom-left}, {label: 右下角, value: bottom-right}], default: bottom-right }
+              - { name: visible, label: 显示, widget: boolean, default: true }
+          - { name: transition, label: 过渡时长(毫秒), widget: number, default: 1800, min: 500, max: 5000 }
