@@ -9,5 +9,7 @@
     "position": "bottom-right",
     "visible": true
   },
-  "transition": 1800
+  "transition": 1800,
+  "titleSize": 90,
+  "subSize": 56
 }
