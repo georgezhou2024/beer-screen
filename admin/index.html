@@ -126,8 +126,8 @@ const BASE = location.pathname.replace(/\/admin.*$/, '').replace(/\/$/, '');
 function p(src) {
   if (!src) return "";
   if (src.startsWith('http')) return src;
-  if (src.startsWith('/')) return BASE + src;
-  return BASE + '/' + src;
+  if (src.startsWith('/')) return location.origin + src;
+  return location.origin + BASE + '/' + src;
 }
 
 function showStatus(msg, type="ok") {
