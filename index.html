@@ -242,6 +242,16 @@ document.addEventListener('click', () => {
   }
 });
 
+// 防复制链接：禁右键、禁F12、禁文本选择
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) || (e.ctrlKey && e.key === 'u')) {
+    e.preventDefault();
+  }
+});
+document.body.style.userSelect = 'none';
+document.body.style.webkitUserSelect = 'none';
+
 loadConfig();
 setInterval(loadConfig, 20000);
 </script>
