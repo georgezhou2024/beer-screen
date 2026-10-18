@@ -46,9 +46,9 @@
       "src": "https://pub-850ec5e87abf47f28ec5c93b514f06e7.r2.dev/Every%20Beer%20Explained.mp4",
       "tag": "洪雨啤酒知识",
       "title": "啤酒详细解",
-      "subtitle": "每种啤酒的解释",
+      "subtitle": "Explanation of each type of beer",
       "duration": 20,
-      "enabled": true
+      "enabled": false
     }
   ]
 }
