@@ -10,8 +10,8 @@ publish_mode: simple
 media_folder: assets/uploads
 public_folder: /assets/uploads
 
-site_url: ""   # ← 部署后填你的 Vercel 域名，比如 https://beer-screen.vercel.app
-display_url: ""
+site_url: https://beer-screen.vercel.app
+display_url: https://beer-screen.vercel.app
 
 collections:
   - name: slides
