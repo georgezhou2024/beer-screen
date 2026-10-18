@@ -5,11 +5,11 @@
     "visible": true
   },
   "cornerText": {
-    "text": "HONG YU XIAO JIU GUAN  · 宏雨小酒馆",
+    "text": "HONG YU XIAO JIU GUAN  · 洪雨小酒馆",
     "position": "bottom-right",
     "visible": true
   },
   "transition": 1800,
-  "titleSize": 90,
-  "subSize": 56
+  "titleSize": 56,
+  "subSize": 26
 }
