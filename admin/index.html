@@ -163,8 +163,9 @@ async function api(path, method="GET", body=null) {
 
 async function loadFile(path) {
   const f = await api("/repos/" + REPO + "/contents/" + path + "?ref=main");
-  const content = JSON.parse(decodeURIComponent(escape(atob(f.content))));
-  return { data: content, sha: f.sha };
+  const bytes = Uint8Array.from(atob(f.content.replace(/\n/g,'')), c => c.charCodeAt(0));
+  const content = new TextDecoder('utf-8').decode(bytes);
+  return { data: JSON.parse(content), sha: f.sha };
 }
 
 async function loadAll() {
@@ -277,15 +278,20 @@ async function saveAll() {
 
     showStatus("保存中...");
     // save settings
+    const enc = new TextEncoder();
+    const sBytes = enc.encode(JSON.stringify(settings, null, 2));
+    let sBin = ''; sBytes.forEach(b => sBin += String.fromCharCode(b));
     await api("/repos/"+REPO+"/contents/content/settings.json", "PUT", {
       message: "update settings",
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(settings, null, 2)))),
+      content: btoa(sBin),
       sha: settingsSha
     });
     // save slides
+    const lBytes = enc.encode(JSON.stringify({slides: slides}, null, 2));
+    let lBin = ''; lBytes.forEach(b => lBin += String.fromCharCode(b));
     await api("/repos/"+REPO+"/contents/content/slides.json", "PUT", {
       message: "update slides",
-      content: btoa(unescape(encodeURIComponent(JSON.stringify({slides: slides}, null, 2)))),
+      content: btoa(lBin),
       sha: slidesSha
     });
     showStatus("全部保存成功！Vercel 正在自动重新部署，电视端 20 秒内更新");
