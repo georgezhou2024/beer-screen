@@ -329,11 +329,26 @@ async function saveFile(path, dataObj, sha) {
   const enc = new TextEncoder();
   const bytes = enc.encode(JSON.stringify(dataObj, null, 2));
   let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
-  await api("/repos/"+REPO+"/contents/"+path, "PUT", {
-    message: "update " + path,
-    content: btoa(bin),
-    sha: sha
-  });
+  try {
+    await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+      message: "update " + path,
+      content: btoa(bin),
+      sha: sha
+    });
+  } catch(e) {
+    // 409冲突：重新拉sha重试一次
+    if (e.message.includes("409")) {
+      showStatus("冲突，自动重试...", "busy");
+      const newSha = await getFileSha(path);
+      await api("/repos/"+REPO+"/contents/"+path, "PUT", {
+        message: "update " + path,
+        content: btoa(bin),
+        sha: newSha
+      });
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function saveAll() {
